@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Слова для уроков</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F3F5F9; --surface: #FFFFFF; --ink: #161B26; --ink2: #3A4152; --muted: #5A6272; --faint: #8A93A3;
+  --line: #DCE1EA; --line2: #E4E8EF; --accent: #2B59D9; --accent-dark: #1E44AE; --accent-soft: #E6EDFC; --field: #B9C6E6;
+  --warm: #8A4300; --warm-soft: #FDEEDB; --orange: #D9822B; --danger: #B42318; --danger-soft: #FEE4E2;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, 'Noto Sans', system-ui, sans-serif; -webkit-text-size-adjust: 100%; }
+body { min-height: 100vh; }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: default; opacity: .55; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.ipa { font-family: 'Noto Sans', Inter, sans-serif; }
+.muted { color: var(--muted); }
+.center { text-align: center; }
+
+.screen { max-width: 980px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+.pad { padding: 20px 16px; }
+.page-head h1 { margin: 0; font-size: 28px; font-weight: 700; }
+.page-head p { margin: 6px 0 0; font-size: 15px; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.back { align-self: flex-start; background: none; border: 0; color: var(--accent); font-size: 15px; font-weight: 500; padding: 6px 0; margin-bottom: 6px; }
+
+/* сообщения */
+.message { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 32px 24px; text-align: center; }
+.message h1 { margin: 0; font-size: 22px; }
+.message p { margin: 0; font-size: 16px; line-height: 1.5; color: var(--ink2); max-width: 420px; }
+.id-box { margin-top: 8px; display: flex; gap: 8px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 20px; font-weight: 700; letter-spacing: .02em; }
+
+/* кнопки */
+.btn { border: 0; border-radius: 12px; font-weight: 600; font-size: 15px; padding: 0 16px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:not(:disabled):hover { background: var(--accent-dark); }
+.btn-secondary { background: var(--surface); color: var(--accent); border: 1px solid var(--field); }
+.btn-danger { background: var(--surface); color: var(--danger); border: 1px solid #F3B8B2; }
+.btn-danger.armed { background: var(--danger); color: #fff; border-color: var(--danger); }
+.btn-primary.armed, .btn-warm.armed { background: var(--orange); color: #fff; }
+.btn-ghost.armed { color: var(--danger); }
+.btn-ghost { background: none; color: var(--muted); }
+.btn-big { width: 100%; min-height: 50px; font-size: 16px; }
+.btn-warm { background: var(--orange); color: #fff; }
+.btn-dashed { min-height: 50px; border: 1px dashed #9AAAD0; border-radius: 14px; background: transparent; color: var(--accent); font-weight: 600; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+/* ученики */
+.st-card { width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 14px 14px 16px; display: flex; align-items: center; gap: 14px; }
+.avatar { width: 44px; height: 44px; border-radius: 22px; background: var(--accent-soft); color: var(--accent); font-size: 18px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.st-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+.st-name { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 600; }
+.chip { font-size: 12px; font-weight: 700; color: var(--accent); background: var(--accent-soft); border-radius: 6px; padding: 3px 7px; }
+.bar { height: 6px; border-radius: 3px; background: var(--line2); overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+.bar.full > i { background: var(--orange); }
+.st-note { font-size: 13px; color: var(--muted); }
+.st-note.full { color: var(--warm); font-weight: 600; }
+.chev { color: var(--faint); flex-shrink: 0; }
+.empty { background: var(--surface); border: 1px dashed var(--line); border-radius: 14px; padding: 20px; text-align: center; color: var(--muted); font-size: 15px; line-height: 1.5; }
+
+/* экран ученика */
+.top { background: var(--surface); border-bottom: 1px solid var(--line); padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 14px; }
+.row-between { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.name-btn { background: none; border: 0; padding: 0; font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 6px; min-height: 44px; text-align: left; }
+.name-btn svg { color: var(--faint); }
+.levels { display: flex; gap: 4px; }
+.lvl { width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink2); font-size: 14px; font-weight: 600; }
+.lvl[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+.progress-head { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+.progress-head b { font-weight: 600; }
+.progress .bar { height: 8px; border-radius: 4px; }
+.input-label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.input-row { display: flex; gap: 8px; align-items: stretch; }
+.input-row textarea { flex: 1; min-width: 0; resize: vertical; min-height: 48px; border: 1px solid var(--field); border-radius: 10px; padding: 10px 12px; font-size: 16px; line-height: 1.35; background: var(--surface); }
+.status { font-size: 13px; color: var(--muted); margin-top: 8px; }
+.list-meta { font-size: 15px; color: var(--ink2); }
+
+.notice { margin: 12px 16px 0; border-radius: 12px; padding: 12px 14px; font-size: 14px; line-height: 1.45; display: flex; flex-direction: column; gap: 10px; }
+.notice.info { background: var(--warm-soft); color: var(--warm); }
+.notice.error { background: var(--danger-soft); color: var(--danger); }
+.notice .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.notice .btn { min-height: 38px; font-size: 14px; }
+
+.content { flex: 1; padding: 14px 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+.hint { margin: 0 4px; font-size: 13px; color: var(--muted); }
+.table { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; font-size: 12px; line-height: 1.35; }
+.trow { display: grid; grid-template-columns: 22px minmax(84px, 1fr) minmax(84px, 1fr) minmax(0, 1.85fr); width: 100%; text-align: left; border: 0; border-top: 1px solid var(--line2); background: var(--surface); padding: 0; }
+.trow:nth-child(odd) { background: #FAFBFD; }
+.trow.head { background: #EEF1F6; color: var(--ink2); font-weight: 600; border-top: 0; cursor: default; }
+.trow > span { padding: 8px 4px; min-width: 0; -webkit-hyphens: auto; hyphens: auto; overflow-wrap: anywhere; }
+.trow > .c-ipa { display: none; }
+.trow .sub { display: block; margin-top: 2px; font-weight: 400; color: var(--muted); font-family: 'Noto Sans', Inter, sans-serif; }
+.trow > span:first-child { padding-left: 6px; color: var(--muted); }
+.trow > span:last-child { padding-right: 6px; color: var(--ink2); }
+.trow .w { font-weight: 700; color: var(--ink); }
+.trow .x b { color: var(--ink); }
+.trow > .x, .trow > .w { -webkit-hyphens: manual; hyphens: manual; }
+.trow.fresh { animation: fresh 2.4s ease-out; }
+@keyframes fresh { from { background: #FFF4D6; } to { background: inherit; } }
+.divider { border-top: 1px dashed var(--orange); color: var(--warm); background: var(--warm-soft); font-size: 12px; font-weight: 600; padding: 6px 8px; text-align: center; }
+.link-btn { align-self: flex-start; background: none; border: 0; color: var(--accent); font-weight: 600; font-size: 15px; padding: 10px 4px; min-height: 44px; }
+
+.bottom { position: sticky; bottom: 0; background: var(--surface); border-top: 1px solid var(--line); padding: 10px 16px calc(14px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 8px; }
+.bottom p { margin: 0; font-size: 13px; }
+.bottom p.full { color: var(--warm); font-weight: 600; }
+
+/* окно поверх */
+.overlay { position: fixed; inset: 0; background: rgba(22, 27, 38, .45); display: flex; align-items: flex-end; justify-content: center; z-index: 20; }
+.sheet { width: 100%; max-width: 560px; max-height: 92vh; overflow: auto; background: var(--surface); border-radius: 18px 18px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 12px; }
+.sheet h2 { margin: 0; font-size: 20px; }
+.field label { display: block; font-size: 13px; font-weight: 600; color: var(--ink2); margin-bottom: 4px; }
+.field input, .field textarea { width: 100%; border: 1px solid var(--field); border-radius: 10px; padding: 10px 12px; font-size: 16px; background: var(--surface); }
+.field textarea { resize: vertical; min-height: 76px; line-height: 1.4; }
+.sheet .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.sheet .actions .btn { flex: 1 1 140px; }
+
+.toast { position: fixed; left: 50%; bottom: 110px; transform: translateX(-50%); max-width: calc(100% - 32px); background: var(--ink); color: #fff; border-radius: 12px; padding: 12px 16px; font-size: 14px; line-height: 1.4; z-index: 30; box-shadow: 0 6px 24px rgba(0,0,0,.18); }
+
+@media (min-width: 640px) {
+  .table { font-size: 14px; }
+  .trow { grid-template-columns: 34px minmax(90px, 1fr) minmax(100px, 1fr) minmax(110px, 1.2fr) minmax(0, 2.4fr); }
+  .trow > span { padding: 9px 8px; }
+  .trow > .c-ipa { display: block; }
+  .trow .sub { display: none; }
+  .pad { padding: 28px 24px; }
+  .content { padding: 18px 24px; }
+  .top { padding: 18px 24px; }
+}
+</style>
+</head>
+<body>
+
+<section id="scr-message" class="screen" hidden>
+  <div class="message">
+    <h1 id="msgTitle"></h1>
+    <p id="msgText"></p>
+    <div id="msgId" class="id-box" hidden><span id="msgIdValue"></span></div>
+    <button id="msgCopy" class="btn btn-secondary" type="button" hidden>Скопировать номер</button>
+    <button id="msgRetry" class="btn btn-primary" type="button" hidden>Попробовать ещё раз</button>
+  </div>
+</section>
+
+<section id="scr-home" class="screen" hidden>
+  <div class="pad stack">
+    <div class="page-head">
+      <h1>Ученики</h1>
+      <p class="muted">Нажми на ученика, чтобы добавить слова</p>
+    </div>
+    <div id="studentList" class="stack"></div>
+    <button id="addStudentBtn" class="btn-dashed" type="button">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      Добавить ученика
+    </button>
+  </div>
+</section>
+
+<section id="scr-student" class="screen" hidden>
+  <div class="top">
+    <button id="backStudent" class="back" type="button" hidden>← Ученики</button>
+    <div class="row-between">
+      <button id="stName" class="name-btn" type="button" aria-label="Переименовать ученика"><span id="stNameText"></span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+      </button>
+      <div id="levels" class="levels" role="group" aria-label="Уровень ученика"></div>
+    </div>
+    <div id="draftTop">
+      <div class="progress">
+        <div class="progress-head"><b id="sheetTitle"></b><span id="sheetFill" class="muted"></span></div>
+        <div id="sheetBar" class="bar"><i style="width:0"></i></div>
+      </div>
+      <div style="margin-top:14px">
+        <label class="input-label" for="newWords">Новые слова</label>
+        <div class="input-row">
+          <textarea id="newWords" rows="2" placeholder="через запятую: borrow, give up, bank (берег)" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
+          <button id="fillBtn" class="btn btn-primary" type="button">Заполнить</button>
+        </div>
+        <div id="fillStatus" class="status" hidden>Бот подбирает транскрипцию, перевод и примеры — обычно 5–20 секунд…</div>
+      </div>
+    </div>
+    <div id="listTop" class="list-meta" hidden></div>
+  </div>
+  <div id="notice" class="notice" hidden></div>
+  <div class="content">
+    <p id="tableHint" class="hint">Нажми на строку, чтобы исправить</p>
+    <div id="table" class="table"></div>
+    <div id="tableEmpty" class="empty" hidden>Пока нет слов. Впиши их выше и нажми «Заполнить».</div>
+    <button id="archiveBtn" class="link-btn" type="button" hidden></button>
+  </div>
+  <div class="bottom">
+    <p id="bottomHint" class="muted center"></p>
+    <button id="buildBtn" class="btn btn-primary btn-big" type="button">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+      <span id="buildText">Сформировать Word</span>
+    </button>
+    <button id="reopenBtn" class="btn btn-ghost" type="button" hidden>Вернуть слова в черновик</button>
+  </div>
+</section>
+
+<section id="scr-archive" class="screen" hidden>
+  <div class="pad stack">
+    <button id="backArchive" class="back" type="button" hidden>← Назад</button>
+    <div class="page-head">
+      <h1>Готовые листы</h1>
+      <p id="archiveSub" class="muted"></p>
+    </div>
+    <div id="archiveList" class="stack"></div>
+  </div>
+</section>
+
+<div id="overlay" class="overlay" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+    <h2 id="dlgTitle"></h2>
+    <div id="dlgBody" class="stack"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script>
+'use strict';
+// Адрес веб-приложения Apps Script (…/exec). Вставь свой после развёртывания.
+const API_URL = 'https://script.google.com/macros/s/AKfycbwZJ5pjFuzOZaOsOORllNGeNhch3qoXTR7bK85kq7KtJ6ttUCP26Vpan2YKMCf7c9tp/exec';
+const MIN_SERVER = 1;
+
+const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+const hasTgBack = !!(tg && tg.BackButton && tg.isVersionAtLeast && tg.isVersionAtLeast('6.1'));
+const $ = id => document.getElementById(id);
+
+const ERRORS = {
+  network: 'Нет связи с сервером. Проверь интернет и попробуй ещё раз.',
+  'bad response': 'Сервер ответил непонятно. Попробуй ещё раз.',
+  denied: 'Не удалось проверить вход. Закрой приложение и открой его снова из чата с ботом.',
+  'bad action': 'Сервер устарел: обнови код в Apps Script (новая версия развёртывания).',
+  'bad data': 'Сервер не понял запрос. Обнови страницу.',
+  model_unavailable: 'Модели сейчас не отвечают. Попробуй через минуту — слова в поле сохранились.',
+  bad_key: 'Google не принял ключ модели (GEMINI_API_KEY). Сообщи тому, кто настраивал бота.',
+  daily_limit: 'На сегодня достигнут дневной лимит запросов к модели. Завтра всё заработает.',
+  too_many: 'За один раз можно до 20 слов. Раздели на две части.',
+  empty_input: 'Впиши хотя бы одно слово.',
+  empty_draft: 'В листе пока нет слов.',
+  start_bot: 'Бот не может прислать файл. Открой чат с ботом, нажми «Старт» (или отправь /start) и попробуй снова.',
+  telegram: 'Telegram не принял файл.',
+  no_student: 'Ученик не найден — обнови экран.',
+  no_word: 'Слово не найдено — возможно, его уже удалили. Обнови экран.',
+  no_list: 'Лист не найден — обнови экран.',
+  not_last: 'Вернуть в черновик можно только последний лист.',
+  bad_name: 'Имя: от 1 до 40 символов.',
+  bad_level: 'Неизвестный уровень.',
+  bad_word: 'Поле «Слово» не может быть пустым.',
+  no_token: 'На сервере не задан BOT_TOKEN.',
+  'server error': 'Ошибка на сервере. Попробуй ещё раз; если повторяется — сообщи тому, кто настраивал бота.'
+};
+
+class ApiError extends Error {
+  constructor(code, data) { super(code); this.code = code; this.data = data || {}; }
+}
+
+function errText(e) {
+  const code = e && e.code ? e.code : 'network';
+  let t = ERRORS[code] || ('Ошибка: ' + code);
+  if (code === 'telegram' && e.data && e.data.message) t += ' (' + e.data.message + ')';
+  return t;
+}
+
+async function api(action, data) {
+  const body = JSON.stringify(Object.assign({ action: action, initData: tg ? tg.initData : '' }, data || {}));
+  let res;
+  try {
+    res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: body });
+  } catch (err) {
+    throw new ApiError('network');
+  }
+  let json;
+  try { json = await res.json(); } catch (err) { throw new ApiError('bad response'); }
+  if (!json || !json.ok) throw new ApiError(json && json.error ? json.error : 'bad response', json);
+  return json;
+}
+
+// ───── маленькие помощники ─────
+function el(tag, attrs, children) {
+  const n = document.createElement(tag);
+  if (attrs) Object.keys(attrs).forEach(k => {
+    const v = attrs[k];
+    if (v == null || v === false) return;
+    if (k === 'class') n.className = v;
+    else if (k === 'text') n.textContent = v;
+    else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v === true ? '' : v);
+  });
+  (children || []).forEach(c => { if (c != null) n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+  return n;
+}
+function plural(n, f) {
+  const a = Math.abs(n) % 100, b = a % 10;
+  if (a > 10 && a < 20) return f[2];
+  if (b > 1 && b < 5) return f[1];
+  if (b === 1) return f[0];
+  return f[2];
+}
+const WORDS = ['слово', 'слова', 'слов'];
+function haptic(type) { try { tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred(type); } catch (e) {} }
+let toastTimer = null;
+function toast(text) {
+  const t = $('toast'); t.textContent = text; t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 3800);
+}
+/** Кнопка с подтверждением вторым нажатием. */
+function armed(btn, label, action) {
+  if (btn.dataset.armed === '1') { btn.dataset.armed = ''; clearTimeout(btn._t); action(); return; }
+  btn.dataset.armed = '1'; btn.classList.add('armed');
+  const span = btn.querySelector('span') || btn; const old = span.textContent; span.textContent = label;
+  btn._t = setTimeout(() => { btn.dataset.armed = ''; btn.classList.remove('armed'); span.textContent = old; }, 4000);
+  btn._restore = () => { clearTimeout(btn._t); btn.dataset.armed = ''; btn.classList.remove('armed'); span.textContent = old; };
+}
+function hitParts(ex, hit) {
+  const e = String(ex || ''), h = String(hit || '');
+  const at = h ? e.toLowerCase().indexOf(h.toLowerCase()) : -1;
+  return at < 0 ? [e, '', ''] : [e.slice(0, at), e.slice(at, at + h.length), e.slice(at + h.length)];
+}
+
+// ───── состояние и навигация ─────
+const S = { students: [], levels: ['A1', 'A2', 'B1', 'B2', 'C1'], stack: [], student: null, listNo: '', words: [], lists: [], sheet: null, busy: false, fresh: {} };
+
+function show(screen) {
+  ['message', 'home', 'student', 'archive'].forEach(s => { $('scr-' + s).hidden = s !== screen; });
+  window.scrollTo(0, 0);
+}
+function syncBack() {
+  const deep = S.stack.length > 1;
+  if (hasTgBack) { deep ? tg.BackButton.show() : tg.BackButton.hide(); }
+  else { $('backStudent').hidden = !deep; $('backArchive').hidden = !deep; }
+}
+function go(name, screen) { S.stack.push(name); show(screen || name); syncBack(); }
+function goBack() {
+  if (!$('overlay').hidden) { closeDialog(); return; }
+  if (S.stack.length <= 1) return;
+  S.stack.pop();
+  const top = S.stack[S.stack.length - 1];
+  if (top === 'home') { S.student = null; loadHome(); }
+  else if (top === 'student-draft') { S.listNo = ''; openStudent(S.student.id, '', true); }
+  else if (top === 'archive') { renderArchive(); show('archive'); }
+  syncBack();
+}
+
+function message(title, text, opts) {
+  opts = opts || {};
+  $('msgTitle').textContent = title; $('msgText').textContent = text;
+  $('msgId').hidden = !opts.id; $('msgIdValue').textContent = opts.id || '';
+  $('msgCopy').hidden = !opts.id; $('msgRetry').hidden = !opts.retry;
+  S.stack = ['message']; show('message'); syncBack();
+}
+
+// ───── главный экран ─────
+async function loadHome() {
+  S.stack = ['home']; syncBack();
+  try {
+    const r = await api('state');
+    S.students = r.students; S.levels = r.levels || S.levels;
+    renderHome(); show('home');
+  } catch (e) {
+    message('Не получилось загрузить', errText(e), { retry: true });
+  }
+}
+
+function sheetNote(s) {
+  if (!s.draft) return { text: 'Новый лист · пока пусто', full: false, pct: 0 };
+  const full = s.sheet.left === 0 || s.sheet.more > 0;
+  return full
+    ? { text: 'Лист готов — можно печатать', full: true, pct: 100 }
+    : { text: 'Лист в работе · заполнен на ' + s.sheet.fill + '%', full: false, pct: s.sheet.fill };
+}
+
+function renderHome() {
+  const box = $('studentList'); box.textContent = '';
+  if (!S.students.length) {
+    box.appendChild(el('div', { class: 'empty', text: 'Учеников пока нет. Добавь первого — у каждого будет свой уровень и свои листы.' }));
+    return;
+  }
+  S.students.forEach(s => {
+    const n = sheetNote(s);
+    box.appendChild(el('button', { class: 'st-card', type: 'button', onclick: () => openStudent(s.id, '') }, [
+      el('span', { class: 'avatar', 'aria-hidden': 'true', text: (s.name || '?').charAt(0).toUpperCase() }),
+      el('span', { class: 'st-main' }, [
+        el('span', { class: 'st-name' }, [el('span', { text: s.name }), el('span', { class: 'chip', text: s.level })]),
+        el('span', { class: 'bar' + (n.full ? ' full' : '') }, [el('i', { style: 'width:' + n.pct + '%' })]),
+        el('span', { class: 'st-note' + (n.full ? ' full' : ''), text: n.text })
+      ]),
+      chevron()
+    ]));
+  });
+}
+
+function chevron() {
+  const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  s.setAttribute('width', '20'); s.setAttribute('height', '20'); s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('aria-hidden', 'true');
+  s.setAttribute('class', 'chev'); s.setAttribute('fill', 'none'); s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', '2');
+  const p = document.createElementNS('http://www.w3.org/2000/svg', 'path'); p.setAttribute('d', 'M9 18l6-6-6-6'); s.appendChild(p);
+  return s;
+}
+
+// ───── экран ученика ─────
+async function openStudent(id, listNo, silent) {
+  hideNotice();
+  try {
+    const r = await api('words', { studentId: id, listNo: listNo || '' });
+    S.student = r.student; S.listNo = listNo ? String(listNo) : ''; S.words = r.words; S.lists = r.lists; S.sheet = r.sheet || null; S.fresh = {};
+    renderStudent();
+    if (!silent) go(S.listNo ? 'student-list' : 'student-draft', 'student'); else show('student');
+  } catch (e) {
+    toast(errText(e));
+  }
+}
+
+function renderStudent() {
+  const st = S.student, draft = !S.listNo;
+  $('stNameText').textContent = st.name;
+  const lv = $('levels'); lv.textContent = ''; lv.hidden = !draft;
+  S.levels.forEach(L => lv.appendChild(el('button', { class: 'lvl', type: 'button', 'aria-pressed': String(L === st.level), text: L, onclick: () => setLevel(L) })));
+  $('draftTop').hidden = !draft; $('listTop').hidden = draft;
+  $('reopenBtn').hidden = true;
+  if (draft) {
+    const nextNo = (S.lists[0] ? S.lists[0].no : 0) + 1;
+    $('sheetTitle').textContent = 'Лист ' + nextNo + ' в работе';
+    const sh = S.sheet || { fill: 0, left: 0, more: 0, fit: 0 };
+    const full = S.words.length > 0 && (sh.left === 0 || sh.more > 0);
+    $('sheetFill').textContent = S.words.length ? (full ? 'заполнен' : 'заполнен на ' + sh.fill + '%') : 'пока пусто';
+    $('sheetBar').className = 'bar' + (full ? ' full' : '');
+    $('sheetBar').firstElementChild.style.width = (full ? 100 : sh.fill) + '%';
+    const hint = $('bottomHint');
+    hint.className = 'center ' + (full ? 'full' : 'muted');
+    if (!S.words.length) hint.textContent = 'Добавь слова — лист соберётся сам';
+    else if (full) hint.textContent = 'Лист заполнен — можно печатать' + (sh.more > 0 ? ' (ещё ' + sh.more + ' ' + plural(sh.more, WORDS) + ' перейдут в следующий)' : '');
+    else hint.textContent = 'Ещё примерно ' + sh.left + ' ' + plural(sh.left, WORDS) + ' до полного листа';
+    $('buildText').textContent = 'Сформировать Word';
+    $('buildBtn').className = 'btn btn-big ' + (full ? 'btn-warm' : 'btn-primary');
+    $('buildBtn').disabled = !S.words.length;
+  } else {
+    const meta = S.lists.filter(l => String(l.no) === S.listNo)[0] || { date: '', count: S.words.length };
+    $('listTop').textContent = 'Лист ' + S.listNo + ' · ' + meta.date + ' · ' + S.words.length + ' ' + plural(S.words.length, WORDS);
+    $('bottomHint').className = 'center muted';
+    $('bottomHint').textContent = 'Можно поправить слова и отправить лист ещё раз';
+    $('buildText').textContent = 'Отправить ещё раз';
+    $('buildBtn').className = 'btn btn-big btn-primary';
+    $('buildBtn').disabled = !S.words.length;
+    $('reopenBtn').hidden = !(S.lists[0] && String(S.lists[0].no) === S.listNo);
+  }
+  const ab = $('archiveBtn');
+  ab.hidden = !draft || !S.lists.length;
+  ab.textContent = 'Готовые листы: ' + S.lists.length + ' →';
+  renderTable();
+}
+
+function renderTable() {
+  const t = $('table'); t.textContent = '';
+  const draft = !S.listNo;
+  $('tableEmpty').hidden = S.words.length > 0; t.hidden = !S.words.length; $('tableHint').hidden = !S.words.length;
+  if (!S.words.length) return;
+  t.appendChild(el('div', { class: 'trow head', 'aria-hidden': 'true' }, [
+    el('span', { text: '№' }), el('span', { text: 'Слово' }), el('span', { class: 'c-ipa', text: 'Транскр.' }),
+    el('span', { text: 'Перевод' }), el('span', { text: 'Пример' })
+  ]));
+  const fit = draft && S.sheet ? S.sheet.fit : S.words.length;
+  S.words.forEach((w, i) => {
+    if (draft && i === fit && i > 0) t.appendChild(el('div', { class: 'divider', text: 'Дальше — уже следующий лист' }));
+    const n = draft && i >= fit ? i - fit + 1 : i + 1;
+    const p = hitParts(w.ex, w.hit);
+    t.appendChild(el('button', { class: 'trow' + (S.fresh[w.id] ? ' fresh' : ''), type: 'button', 'aria-label': 'Исправить: ' + w.word + ' — ' + w.tr, onclick: () => editWord(w) }, [
+      el('span', { text: String(n) }),
+      el('span', { class: 'w', lang: 'en' }, [w.word, w.ipa ? el('span', { class: 'sub', text: w.ipa }) : null]),
+      el('span', { class: 'ipa c-ipa', text: w.ipa }),
+      el('span', { lang: 'ru', text: w.tr }),
+      el('span', { class: 'x', lang: 'en' }, [p[0], p[1] ? el('b', { text: p[1] }) : null, p[2]])
+    ]));
+  });
+}
+
+async function setLevel(L) {
+  if (!S.student || S.student.level === L) return;
+  const prev = S.student.level; S.student.level = L; renderStudent();
+  try { await api('updateStudent', { id: S.student.id, level: L }); toast('Уровень ' + L + ': новые примеры будут под него'); }
+  catch (e) { S.student.level = prev; renderStudent(); toast(errText(e)); }
+}
+
+async function fill(force, textOverride) {
+  if (S.busy) return;
+  const ta = $('newWords');
+  const text = textOverride != null ? textOverride : ta.value.trim();
+  if (!text) { showNotice('error', ERRORS.empty_input); ta.focus(); return; }
+  S.busy = true; $('fillBtn').disabled = true; $('fillBtn').textContent = 'Заполняю…'; $('fillStatus').hidden = false; hideNotice();
+  try {
+    const r = await api('generate', { studentId: S.student.id, text: text, force: !!force });
+    if (textOverride == null) ta.value = '';
+    S.words = r.words; S.sheet = r.sheet; S.fresh = {};
+    r.added.forEach(w => { S.fresh[w.id] = 1; });
+    renderStudent();
+    if (r.added.length) { haptic('success'); toast('Добавлено: ' + r.added.length + ' ' + plural(r.added.length, WORDS)); }
+    if (r.duplicates && r.duplicates.length) showDuplicates(r.duplicates);
+  } catch (e) {
+    haptic('error'); showNotice('error', errText(e));
+  } finally {
+    S.busy = false; $('fillBtn').disabled = false; $('fillBtn').textContent = 'Заполнить'; $('fillStatus').hidden = true;
+  }
+}
+
+function showDuplicates(d) {
+  const parts = d.map(x => x.input + ' (' + (x.list ? 'лист ' + x.list : 'в этом листе') + ', ' + x.date + ')');
+  showNotice('info', 'Уже были у ученика: ' + parts.join(', ') + '.', [
+    el('button', { class: 'btn btn-secondary', type: 'button', text: 'Добавить всё равно', onclick: () => fill(true, d.map(x => x.input).join(', ')) }),
+    el('button', { class: 'btn btn-ghost', type: 'button', text: 'Не нужно', onclick: hideNotice })
+  ]);
+}
+
+function showNotice(kind, text, actions) {
+  const n = $('notice'); n.textContent = ''; n.className = 'notice ' + kind;
+  n.appendChild(el('div', { text: text }));
+  if (actions && actions.length) n.appendChild(el('div', { class: 'actions' }, actions));
+  n.hidden = false;
+}
+function hideNotice() { $('notice').hidden = true; }
+
+async function build() {
+  const btn = $('buildBtn');
+  if (S.busy || !S.words.length) return;
+  const draft = !S.listNo;
+  const sh = S.sheet || {};
+  const full = sh.left === 0 || sh.more > 0;
+  const run = async () => {
+    if (btn._restore) btn._restore();
+    S.busy = true; btn.disabled = true; $('buildText').textContent = 'Собираю файл…';
+    try {
+      const r = await api('buildSheet', draft ? { studentId: S.student.id } : { studentId: S.student.id, listNo: S.listNo });
+      haptic('success');
+      toast('Лист ' + r.no + ' отправлен в чат с ботом' + (r.left ? '. В работе осталось ' + r.left + ' ' + plural(r.left, WORDS) : ''));
+      S.busy = false;
+      if (draft) await openStudent(S.student.id, '', true);
+      else renderStudent();
+    } catch (e) {
+      haptic('error'); showNotice('error', errText(e)); S.busy = false; renderStudent();
+    }
+  };
+  if (draft && !full) armed(btn, 'Заполнен на ' + sh.fill + '%. Нажми ещё раз', run);
+  else run();
+}
+
+async function reopen() {
+  const btn = $('reopenBtn');
+  armed(btn, 'Слова вернутся в черновик. Нажми ещё раз', async () => {
+    try {
+      await api('reopenSheet', { studentId: S.student.id, listNo: S.listNo });
+      toast('Слова листа ' + S.listNo + ' снова в работе');
+      S.stack = ['home', 'student-draft']; syncBack();
+      await openStudent(S.student.id, '', true);
+    } catch (e) { toast(errText(e)); }
+  });
+}
+
+// ───── архив ─────
+function renderArchive() {
+  $('archiveSub').textContent = S.student.name + ' · ' + S.lists.length + ' ' + plural(S.lists.length, ['лист', 'листа', 'листов']);
+  const box = $('archiveList'); box.textContent = '';
+  S.lists.forEach(l => {
+    box.appendChild(el('button', { class: 'st-card', type: 'button', onclick: () => openStudent(S.student.id, l.no) }, [
+      el('span', { class: 'avatar', 'aria-hidden': 'true', text: String(l.no) }),
+      el('span', { class: 'st-main' }, [
+        el('span', { class: 'st-name', text: 'Лист ' + l.no }),
+        el('span', { class: 'st-note', text: l.date + ' · ' + l.count + ' ' + plural(l.count, WORDS) })
+      ]),
+      chevron()
+    ]));
+  });
+}
+function openArchive() { renderArchive(); go('archive'); }
+
+// ───── окна ─────
+function openDialog(title, body) {
+  $('dlgTitle').textContent = title;
+  const b = $('dlgBody'); b.textContent = ''; body.forEach(x => b.appendChild(x));
+  $('overlay').hidden = false;
+  if (hasTgBack) tg.BackButton.show();
+  const first = b.querySelector('input, textarea'); if (first) setTimeout(() => first.focus(), 50);
+}
+function closeDialog() { $('overlay').hidden = true; syncBack(); }
+function field(label, id, value, multiline) {
+  const input = multiline ? el('textarea', { id: id, rows: '3' }) : el('input', { id: id, type: 'text', autocomplete: 'off', spellcheck: 'false' });
+  input.value = value || '';
+  return el('div', { class: 'field' }, [el('label', { for: id, text: label }), input]);
+}
+
+function addStudentDialog() {
+  let level = 'A2';
+  const lv = el('div', { class: 'levels', role: 'group', 'aria-label': 'Уровень' });
+  const drawLv = () => { lv.textContent = ''; S.levels.forEach(L => lv.appendChild(el('button', { class: 'lvl', type: 'button', 'aria-pressed': String(L === level), text: L, onclick: () => { level = L; drawLv(); } }))); };
+  drawLv();
+  const save = el('button', { class: 'btn btn-primary', type: 'button', text: 'Добавить', onclick: async () => {
+    const name = $('fName').value.trim(); if (!name) { $('fName').focus(); return; }
+    save.disabled = true;
+    try { await api('addStudent', { name: name, level: level }); closeDialog(); haptic('success'); await loadHome(); }
+    catch (e) { save.disabled = false; toast(errText(e)); }
+  } });
+  openDialog('Новый ученик', [
+    field('Имя', 'fName', ''),
+    el('div', { class: 'field' }, [el('label', { text: 'Уровень' }), lv]),
+    el('div', { class: 'actions' }, [save, el('button', { class: 'btn btn-ghost', type: 'button', text: 'Отмена', onclick: closeDialog })])
+  ]);
+}
+
+function renameDialog() {
+  const save = el('button', { class: 'btn btn-primary', type: 'button', text: 'Сохранить', onclick: async () => {
+    const name = $('fRename').value.trim(); if (!name) { $('fRename').focus(); return; }
+    save.disabled = true;
+    try { const r = await api('updateStudent', { id: S.student.id, name: name }); S.student.name = r.student.name; closeDialog(); renderStudent(); }
+    catch (e) { save.disabled = false; toast(errText(e)); }
+  } });
+  openDialog('Имя ученика', [field('Имя', 'fRename', S.student.name), el('div', { class: 'actions' }, [save, el('button', { class: 'btn btn-ghost', type: 'button', text: 'Отмена', onclick: closeDialog })])]);
+}
+
+function editWord(w) {
+  const save = el('button', { class: 'btn btn-primary', type: 'button', text: 'Сохранить' });
+  const again = el('button', { class: 'btn btn-secondary', type: 'button', text: 'Другой пример' });
+  const del = el('button', { class: 'btn btn-danger', type: 'button' }, [el('span', { text: 'Удалить' })]);
+  const busy = on => { [save, again, del].forEach(b => { b.disabled = on; }); };
+  save.addEventListener('click', async () => {
+    busy(true);
+    try {
+      const r = await api('updateWord', { id: w.id, word: $('fWord').value, ipa: $('fIpa').value, tr: $('fTr').value, ex: $('fEx').value });
+      replaceWord(r.word, r.sheet); closeDialog(); toast('Сохранено');
+    } catch (e) { busy(false); toast(errText(e)); }
+  });
+  again.addEventListener('click', async () => {
+    busy(true); again.textContent = 'Придумываю…';
+    try {
+      const r = await api('regenerate', { id: w.id });
+      $('fEx').value = r.word.ex; w.ex = r.word.ex; w.hit = r.word.hit;
+      replaceWord(r.word, r.sheet); haptic('success');
+    } catch (e) { toast(errText(e)); }
+    busy(false); again.textContent = 'Другой пример';
+  });
+  del.addEventListener('click', () => armed(del, 'Нажми ещё раз', async () => {
+    busy(true);
+    try {
+      const r = await api('deleteWord', { id: w.id });
+      S.words = S.words.filter(x => x.id !== w.id); if (r.sheet) S.sheet = r.sheet;
+      closeDialog(); renderStudent(); toast('Слово удалено');
+    } catch (e) { busy(false); toast(errText(e)); }
+  }));
+  openDialog('Исправить слово', [
+    field('Слово', 'fWord', w.word),
+    field('Транскрипция', 'fIpa', w.ipa),
+    field('Перевод', 'fTr', w.tr),
+    field('Пример', 'fEx', w.ex, true),
+    el('div', { class: 'actions' }, [save, again]),
+    el('div', { class: 'actions' }, [del, el('button', { class: 'btn btn-ghost', type: 'button', text: 'Отмена', onclick: closeDialog })])
+  ]);
+}
+
+function replaceWord(nw, sheet) {
+  S.words = S.words.map(x => (x.id === nw.id ? nw : x));
+  if (sheet) S.sheet = sheet;
+  renderStudent();
+}
+
+// ───── запуск ─────
+async function copyId() {
+  const v = $('msgIdValue').textContent;
+  try { await navigator.clipboard.writeText(v); toast('Номер скопирован'); }
+  catch (e) { toast('Выдели номер и скопируй вручную'); }
+}
+
+async function init() {
+  $('addStudentBtn').addEventListener('click', addStudentDialog);
+  $('fillBtn').addEventListener('click', () => fill(false));
+  $('newWords').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) fill(false); });
+  $('buildBtn').addEventListener('click', build);
+  $('reopenBtn').addEventListener('click', reopen);
+  $('archiveBtn').addEventListener('click', openArchive);
+  $('stName').addEventListener('click', renameDialog);
+  $('backStudent').addEventListener('click', goBack);
+  $('backArchive').addEventListener('click', goBack);
+  $('msgCopy').addEventListener('click', copyId);
+  $('msgRetry').addEventListener('click', () => location.reload());
+  $('overlay').addEventListener('click', e => { if (e.target === $('overlay')) closeDialog(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('overlay').hidden) closeDialog(); });
+
+  if (tg) {
+    tg.ready(); tg.expand();
+    try { tg.setHeaderColor('#FFFFFF'); tg.setBackgroundColor('#F3F5F9'); } catch (e) {}
+    if (hasTgBack) tg.BackButton.onClick(goBack);
+  }
+  if (API_URL.indexOf('https://script.google.com/') !== 0) {
+    message('Приложение не настроено', 'Впиши адрес веб-приложения Apps Script (…/exec) в константу API_URL в index.html.');
+    return;
+  }
+  if (!tg || !tg.initData) {
+    message('Открой из Telegram', 'Это приложение работает внутри Telegram: открой его кнопкой в чате с ботом.');
+    return;
+  }
+  try {
+    const w = await api('whoami');
+    if (!w.allowed) {
+      message('Нет доступа', 'Отправь этот номер тому, кто настраивал бота, — он добавит тебя, и всё заработает.', { id: w.id });
+      return;
+    }
+    if (Number(w.version || 0) < MIN_SERVER) {
+      message('Нужно обновить сервер', 'Сервер старее, чем приложение. Обнови код в Apps Script и выпусти новую версию развёртывания.');
+      return;
+    }
+    await loadHome();
+  } catch (e) {
+    message('Не получилось подключиться', errText(e), { retry: true });
+  }
+}
+
+init();
+</script>
+</body>
+</html>
